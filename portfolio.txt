@@ -1,0 +1,4 @@
+tickers, weights
+TSLA, 0.5
+AAPL, 0.25
+AMZN, 0.25

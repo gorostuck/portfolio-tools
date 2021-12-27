@@ -1,17 +1,22 @@
 % Fetch list of tickers to retrieve close data from
-fileID = fopen('tickers.txt','r');
+T = readtable('portfolio.txt');
+
 
 % TODO: Initial date must be dynamically selected (such as by taking the
 % latest available date
 initDate = '1-Jan-2014';
-A = fscanf(fileID, "%s");
-tickers = strsplit(A, ",");
+
+tickers = T.tickers;
+
+% TODO: Stop changing the size of the results array all the time
 results = {};
 
 % Iterate through every ticker and append it to the results list
-for tckr = tickers
-    history = getMarketDataViaYahoo(tckr{1}, initDate);    
-    history_price = timeseries(history.Close, datestr(history(:,1).Date), 'Name', tckr{1});
+for k=1:length(tickers)
+    current_ticker = tickers(k);
+    current_ticker = current_ticker{1};
+    history = getMarketDataViaYahoo(current_ticker, initDate);    
+    history_price = timeseries(history.Close, datestr(history(:,1).Date), 'Name', current_ticker);
     results = [results history_price];
 end
 
