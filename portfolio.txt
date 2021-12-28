@@ -1,4 +1,5 @@
 tickers, weights
-TSLA, 0.5
+TSLA, 0.25
 AAPL, 0.25
 AMZN, 0.25
+DPZ, 0.25
