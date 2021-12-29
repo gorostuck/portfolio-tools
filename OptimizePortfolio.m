@@ -78,7 +78,7 @@ hold off
 % Portfolio prices
 fig2 = figure('Name', 'Portfolio Prices', 'NumberTitle', 'off');
 t = tiledlayout(1, 1);
-semilogy(dates, portfolio_value_original,'DisplayName','Original Portfolio')
+semilogy(dates, portfolio_value_original,'DisplayName','Provided Portfolio')
 hold on
 semilogy(dates, portfolio_value_optimal,'DisplayName','Optimal Portfolio')
 xlabel("Date");
@@ -96,6 +96,10 @@ uit = uitable(fig3,'Data',t);
 % Portfolio specific charts
 % Calculations
 annualized_portfolio_returns = retime(portfolio_returns_tt, "yearly","sum");
+annualized_portfolio_returns.portfolio_returns_original = 100*annualized_portfolio_returns.portfolio_returns_original;
+annualized_portfolio_returns.portfolio_returns_optimal = 100*annualized_portfolio_returns.portfolio_returns_optimal;
+
+
 
 % TODO: We shouldn't assume that the risk-less rate is zero
 annualized_sharpe_original = sqrt(252) * sharpe(portfolio_returns_original, 0);
@@ -108,7 +112,7 @@ annualized_return = [mean(annualized_portfolio_returns.portfolio_returns_origina
 standard_deviation = [std(annualized_portfolio_returns.portfolio_returns_original) std(annualized_portfolio_returns.portfolio_returns_optimal)];
 best_year = [max(annualized_portfolio_returns.portfolio_returns_original) max(annualized_portfolio_returns.portfolio_returns_optimal)];
 worst_year = [min(annualized_portfolio_returns.portfolio_returns_original) min(annualized_portfolio_returns.portfolio_returns_optimal)];
-max_drawdown = [maxdrawdown(portfolio_value_original) maxdrawdown(portfolio_value_optimal)];
+max_drawdown = [(-1)*maxdrawdown(portfolio_value_original)*100 (-1)*maxdrawdown(portfolio_value_optimal)*100];
 sharpe_ratio = [annualized_sharpe_original annualized_sharpe_optimal];
 
 % Final Table 
@@ -122,8 +126,24 @@ results = array2table(data, 'VariableNames', {'Provided Portfolio', 'Optimal Por
 fig4 = uifigure('Name', 'Portfolio Data', 'NumberTitle', 'off');
 uit = uitable(fig4,'Data',results);
 
+fig5 = figure('Name', 'Portfolio Returns for Each Year', 'NumberTitle', 'off');
+t = tiledlayout(1, 1, 'TileSpacing', 'compact');
+
+% Create returns for every year
+ax1 = nexttile;
+bar(annualized_portfolio_returns.Time, [annualized_portfolio_returns.portfolio_returns_original, ...
+    annualized_portfolio_returns.portfolio_returns_optimal] ...
+    );
+
+ytickformat('percentage');
+
+lgd = legend('Provided Portfolio', 'Optimal Portfolio');
+hold off
+
+
 % Save figures to use with the report
 savefig(fig1, 'Figures/fig1');
 savefig(fig2, 'Figures/fig2');
 savefig(fig3, 'Figures/fig3');
 savefig(fig4, 'Figures/fig4');
+savefig(fig5, 'Figures/fig5');
