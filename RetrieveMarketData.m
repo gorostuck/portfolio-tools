@@ -1,14 +1,19 @@
 % Fetch list of tickers to retrieve close data from
-T = readtable('portfolio.txt');
+T = readtable('Portfolio.xlsx');
 
 
-% TODO: Initial date must be dynamically selected (such as by taking the
-% latest available date
-initDate = '1-Jan-2014';
+% Load Parameters
+% TODO: We should test that the earliest available date is later than the 
+% backtesting starting date written by the user
+initDate = T.StartDate(1);
+tickers = T.Tickers;
 
-tickers = T.tickers;
+% Add path of Financial Data files
+addpath('FinancialData')
 
-% TODO: Stop changing the size of the results array all the time
+
+% TODO: Stop changing the size of the results array all the time and 
+% instead create a matrix that is filled up
 results = {};
 
 % Iterate through every ticker and append it to the results list
