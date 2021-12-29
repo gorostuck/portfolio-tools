@@ -5,6 +5,14 @@ T = readtable('Portfolio.xlsx');
 tickers = T.Tickers;
 original_weights = T.Weights;
 
+% If weights do not add up to 1, normalize them
+if sum(original_weights) ~= 1
+    warning("Provided weights did not add up to 1.0 and had to be re-normalized.")
+    original_weights = original_weights / sum(original_weights);
+end
+
+% Re-standardize weights in case they do not add up to 100%
+
 % Read market data file previously generated
 % TODO: If there is no market data it or there is that option it should
 % re-fetch it, otherwise no need to keep running the function over and 
