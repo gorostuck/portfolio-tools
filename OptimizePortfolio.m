@@ -1,9 +1,9 @@
 % Read allocations from the table
-T = readtable('Portfolio.xlsx');
+inputs = readtable('Portfolio.xlsx');
 
 % Load Parameters
-tickers = T.Tickers;
-original_weights = T.Weights;
+portfolio_tickers = inputs.Tickers;
+original_weights = inputs.Weights;
 
 % If weights do not add up to 1, normalize them
 if sum(original_weights) ~= 1
@@ -21,11 +21,15 @@ RetrieveMarketData
 market_data = readtimetable('market_data.csv');
 dates = market_data.Time;
 
-% Obtain daily returns
-daily_return = tick2ret(market_data{:, 1:end});
+% Obtain daily returns and split between portfolio holding returns and
+% market
+daily_return_full = tick2ret(market_data{:, 1:end});
+daily_return = daily_return_full(:, 1:end-1);
+market_return = daily_return_full(:, end);
+
 
 % Construct Portfolio
-p = Portfolio('AssetList', tickers);
+p = Portfolio('AssetList', portfolio_tickers);
 
 % Estimate Portfolio Moments
 p = estimateAssetMoments(p, daily_return);
@@ -71,7 +75,7 @@ ax2 = nexttile;
 pie(ax2, optimal_weights);
 title('Max Sharpe Portfolio');
 
-lgd = legend(tickers);
+lgd = legend(portfolio_tickers);
 hold off
 
 
@@ -88,7 +92,7 @@ hold off
 
 
 % Security specific information
-t = table(tickers, original_weights, optimal_weights);
+t = table(portfolio_tickers, original_weights, optimal_weights);
 fig3 = uifigure('Name', 'Securities Data', 'NumberTitle', 'off');
 uit = uitable(fig3,'Data',t);
 
@@ -98,7 +102,8 @@ uit = uitable(fig3,'Data',t);
 annualized_portfolio_returns = retime(portfolio_returns_tt, "yearly","sum");
 annualized_portfolio_returns.portfolio_returns_original = 100*annualized_portfolio_returns.portfolio_returns_original;
 annualized_portfolio_returns.portfolio_returns_optimal = 100*annualized_portfolio_returns.portfolio_returns_optimal;
-
+original_beta = corrcoef(portfolio_returns_original, market_return);
+optimal_beta  = corrcoef(portfolio_returns_optimal, market_return);
 
 
 % TODO: We shouldn't assume that the risk-less rate is zero
@@ -114,14 +119,15 @@ best_year = [max(annualized_portfolio_returns.portfolio_returns_original) max(an
 worst_year = [min(annualized_portfolio_returns.portfolio_returns_original) min(annualized_portfolio_returns.portfolio_returns_optimal)];
 max_drawdown = [(-1)*maxdrawdown(portfolio_value_original)*100 (-1)*maxdrawdown(portfolio_value_optimal)*100];
 sharpe_ratio = [annualized_sharpe_original annualized_sharpe_optimal];
+betas = [original_beta(2, 1), optimal_beta(2, 1)];
 
 % Final Table 
 data = [start_balance; end_balance; annualized_return; standard_deviation; 
-    best_year; worst_year; max_drawdown; sharpe_ratio];
+    best_year; worst_year; max_drawdown; sharpe_ratio; betas];
 
 results = array2table(data, 'VariableNames', {'Provided Portfolio', 'Optimal Portfolio'}, ...
     'RowNames', {'Start Balance', 'End Balance', 'CAGR', 'Standard Deviation', 'Best Year' ...
-    'Worst Year', 'Max Drawdown', 'Sharpe Ratio'});
+    'Worst Year', 'Max Drawdown', 'Sharpe Ratio', 'Beta'});
 
 fig4 = uifigure('Name', 'Portfolio Data', 'NumberTitle', 'off');
 uit = uitable(fig4,'Data',results);

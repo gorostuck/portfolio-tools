@@ -8,6 +8,9 @@ T = readtable('Portfolio.xlsx');
 initDate = T.StartDate(1);
 tickers = T.Tickers;
 
+% We will want to add the S&P500 in order to calculate the Beta
+tickers{end+1} = 'SPY';
+
 % Add path of Financial Data files
 addpath('FinancialData')
 
