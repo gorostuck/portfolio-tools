@@ -4,6 +4,8 @@ inputs = readtable('Portfolio.xlsx');
 % Load Parameters
 portfolio_tickers = inputs.Tickers;
 original_weights = inputs.Weights;
+lower_bounds = inputs.LowerBound;
+upper_bounds = inputs.UpperBound;
 
 % If weights do not add up to 1, normalize them
 if sum(original_weights) ~= 1
@@ -36,6 +38,8 @@ p = estimateAssetMoments(p, daily_return);
 
 % Set Portfolio Constraints, Long Only, 100% allocation at all times
 p = setDefaultConstraints(p);
+
+p = setBounds(p, lower_bounds, upper_bounds);
 
 % Estimate Optimal Weights for Sharpe Ratio
 % TODO: You should be able to select what you wish to optimize for 
