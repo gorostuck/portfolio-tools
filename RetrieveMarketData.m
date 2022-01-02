@@ -1,3 +1,5 @@
+function RetrieveMarketData(initDate)
+
 % Fetch list of tickers to retrieve close data from
 T = readtable('Portfolio.xlsx');
 
@@ -5,7 +7,9 @@ T = readtable('Portfolio.xlsx');
 % Load Parameters
 % TODO: We should test that the earliest available date is later than the 
 % backtesting starting date written by the user
-initDate = T.StartDate(1);
+if nargin < 1
+    initDate = T.StartDate(1);
+end
 tickers = T.Tickers;
 
 % Add path of Financial Data files
