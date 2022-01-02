@@ -20,7 +20,7 @@ end
 % re-fetch it, otherwise no need to keep running the function over and 
 % over again...
 RetrieveMarketData
-market_data = readtimetable('market_data.csv');
+market_data = readtimetable('market_data.csv', 'VariableNamingRule', 'preserve');
 dates = market_data.Time;
 
 % Obtain daily returns and split between portfolio holding returns and
@@ -83,6 +83,7 @@ lgd = legend(portfolio_tickers);
 hold off
 
 
+
 % Portfolio prices
 fig2 = figure('Name', 'Portfolio Prices', 'NumberTitle', 'off');
 t = tiledlayout(1, 1);
@@ -96,7 +97,8 @@ hold off
 
 
 % Security specific information
-t = table(portfolio_tickers, original_weights, optimal_weights);
+t = table(portfolio_tickers, original_weights, optimal_weights, lower_bounds, upper_bounds, ...
+    'VariableNames', {'Tickers', 'Original Weights', 'Optimal Weights', 'Lower Bounds', 'Upper Bounds'});
 fig3 = uifigure('Name', 'Securities Data', 'NumberTitle', 'off');
 uit = uitable(fig3,'Data',t);
 

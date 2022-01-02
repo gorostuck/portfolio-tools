@@ -8,14 +8,18 @@ T = readtable('Portfolio.xlsx');
 initDate = T.StartDate(1);
 tickers = T.Tickers;
 
-% We will want to add the S&P500 in order to calculate the Beta
-tickers{end+1} = 'SPY';
-
 % Add path of Financial Data files
 addpath('FinancialData')
 
 
-% TODO: Stop changing the size of the results array all the time and 
+% First load market data and use it to synchronize the rest of the tickers 
+% against it
+market_ticker = 'SPY';
+market_history = getMarketDataViaYahoo(market_ticker, initDate);
+history_price_market = timeseries(market_history.Close, datestr(market_history(:,1).Date), 'Name', market_ticker);
+tt = timeseries2timetable(history_price_market);
+
+
 % instead create a matrix that is filled up
 results = {};
 
@@ -25,11 +29,9 @@ for k=1:length(tickers)
     current_ticker = current_ticker{1};
     history = getMarketDataViaYahoo(current_ticker, initDate);    
     history_price = timeseries(history.Close, datestr(history(:,1).Date), 'Name', current_ticker);
-    results = [results history_price];
+    new_ticker_tt = timeseries2timetable(history_price);
+    tt = synchronize(tt, new_ticker_tt);
 end
-
-% Construct a timetable from all the timeseries
-tt = timeseries2timetable(results);
 
 % Write timetable contents into a csv that can be used afterwards 
 writetimetable(tt, "market_data.csv")
