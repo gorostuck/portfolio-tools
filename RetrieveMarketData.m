@@ -1,7 +1,7 @@
-function RetrieveMarketData(initDate)
+function RetrieveMarketData(initDate, tickers)
 
 % Fetch list of tickers to retrieve close data from
-T = readtable('Portfolio.xlsx');
+%T = readtable('Portfolio.xlsx');
 
 
 % Load Parameters
@@ -10,7 +10,7 @@ T = readtable('Portfolio.xlsx');
 if nargin < 1
     initDate = T.StartDate(1);
 end
-tickers = T.Tickers;
+%tickers = T.Tickers;
 
 % Add path of Financial Data files
 addpath('FinancialData')
